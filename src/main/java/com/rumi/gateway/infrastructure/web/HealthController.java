@@ -1,4 +1,4 @@
-package com.rumi.gateway.interfaces.rest;
+package com.rumi.gateway.infrastructure.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;

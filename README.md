@@ -61,10 +61,10 @@ documentation on its own port.
 
 ## Run
 
-Requirements: JDK 21, Maven.
+Requirements: JDK 21 (the Maven wrapper is included; use `mvnw.cmd` on Windows).
 
 ```sh
-mvn spring-boot:run
+./mvnw spring-boot:run
 ```
 
 | Variable | Default |
@@ -77,7 +77,7 @@ A request routed to a service that is not running is answered with HTTP 500.
 ## Test
 
 ```sh
-mvn test
+./mvnw test
 ```
 
 ## Origin
