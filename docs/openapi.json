@@ -1,0 +1,73 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "Rumi API Gateway",
+        "description": "Single entry point of the Rumi platform. It only documents its own health endpoint; the API of each bounded context is documented by the service that owns it.",
+        "version": "0.1.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8080",
+            "description": "Generated server url"
+        }
+    ],
+    "tags": [
+        {
+            "name": "Health",
+            "description": "Liveness of the gateway"
+        }
+    ],
+    "paths": {
+        "/api/v1/gateway/health": {
+            "get": {
+                "tags": [
+                    "Health"
+                ],
+                "summary": "Check that the gateway is running",
+                "description": "Answered by the gateway itself, without routing to any service. It is not a functional endpoint of the platform.",
+                "operationId": "health",
+                "responses": {
+                    "200": {
+                        "description": "The gateway is running",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HealthResponse"
+                                },
+                                "examples": {
+                                    "Gateway up": {
+                                        "description": "Gateway up",
+                                        "value": {
+                                            "status": "UP",
+                                            "service": "rumi-api-gateway"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "HealthResponse": {
+                "type": "object",
+                "description": "Liveness information of the gateway",
+                "properties": {
+                    "status": {
+                        "type": "string",
+                        "description": "Liveness status",
+                        "example": "UP"
+                    },
+                    "service": {
+                        "type": "string",
+                        "description": "Name of the service",
+                        "example": "rumi-api-gateway"
+                    }
+                }
+            }
+        }
+    }
+}
