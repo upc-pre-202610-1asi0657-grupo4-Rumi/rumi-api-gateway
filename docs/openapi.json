@@ -2,13 +2,18 @@
     "openapi": "3.1.0",
     "info": {
         "title": "Rumi API Gateway",
-        "description": "Single entry point of the Rumi platform. It only documents its own health endpoint; the API of each bounded context is documented by the service that owns it.",
+        "description": "Single entry point of the Rumi platform. It only documents its own health endpoint; the API of each bounded context is documented by the service that owns it. Every routed path except /api/v1/authentication/** requires a bearer JWT issued by rumi-iam-service; the gateway answers 401 (Unauthorized) for a missing, malformed, badly signed or expired token and 403 (Forbidden) when the role is not allowed.",
         "version": "0.1.0"
     },
     "servers": [
         {
             "url": "http://localhost:8080",
             "description": "Generated server url"
+        }
+    ],
+    "security": [
+        {
+            "bearerJwt": []
         }
     ],
     "tags": [
@@ -24,7 +29,7 @@
                     "Health"
                 ],
                 "summary": "Check that the gateway is running",
-                "description": "Answered by the gateway itself, without routing to any service. It is not a functional endpoint of the platform.",
+                "description": "Answered by the gateway itself, without routing to any service. It is not a functional endpoint of the platform. It is public: no token is required.",
                 "operationId": "health",
                 "responses": {
                     "200": {
@@ -46,12 +51,40 @@
                             }
                         }
                     }
-                }
+                },
+                "security": []
             }
         }
     },
     "components": {
         "schemas": {
+            "ProblemDetail": {
+                "type": "object",
+                "description": "Error answer of the gateway (RFC 9457)",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "example": "about:blank"
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Unauthorized"
+                    },
+                    "status": {
+                        "type": "integer",
+                        "format": "int32",
+                        "example": 401
+                    },
+                    "detail": {
+                        "type": "string",
+                        "example": "A valid bearer token is required to access this resource."
+                    },
+                    "instance": {
+                        "type": "string",
+                        "example": "/api/v1/alerts"
+                    }
+                }
+            },
             "HealthResponse": {
                 "type": "object",
                 "description": "Liveness information of the gateway",
@@ -67,6 +100,58 @@
                         "example": "rumi-api-gateway"
                     }
                 }
+            }
+        },
+        "responses": {
+            "Unauthorized": {
+                "description": "Missing, malformed, badly signed or expired token",
+                "content": {
+                    "application/problem+json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/ProblemDetail"
+                        },
+                        "examples": {
+                            "Unauthorized": {
+                                "value": {
+                                    "type": "about:blank",
+                                    "title": "Unauthorized",
+                                    "status": 401,
+                                    "detail": "A valid bearer token is required to access this resource.",
+                                    "instance": "/api/v1/alerts"
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "Forbidden": {
+                "description": "Valid token, but its role is not allowed on this path and method",
+                "content": {
+                    "application/problem+json": {
+                        "schema": {
+                            "$ref": "#/components/schemas/ProblemDetail"
+                        },
+                        "examples": {
+                            "Forbidden": {
+                                "value": {
+                                    "type": "about:blank",
+                                    "title": "Forbidden",
+                                    "status": 403,
+                                    "detail": "Your role is not allowed to access this resource.",
+                                    "instance": "/api/v1/alerts"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "bearerJwt": {
+                "type": "http",
+                "description": "HS256 token issued by rumi-iam-service. Claims: sub (user id), role (ADMINISTRATOR or RESIDENT) and buildingIds (list of building ids).",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
             }
         }
     }
