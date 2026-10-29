@@ -1,0 +1,5 @@
+rumi:
+  security:
+    jwt:
+      # Test-only key. Never use it outside the tests.
+      secret: test-only-secret-for-gateway-tests-0123456789
