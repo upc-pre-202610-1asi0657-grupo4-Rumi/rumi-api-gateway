@@ -48,6 +48,12 @@ spring:
               predicates:
                 - Path=/api/v1/inspections/**,/api/v1/damage-reports/**
 
+rumi:
+  security:
+    jwt:
+      # HS256 key shared with rumi-iam-service. Required, at least 32 bytes; there is no default on purpose.
+      secret: ${JWT_SECRET:}
+
 springdoc:
   api-docs:
     path: /v3/api-docs
